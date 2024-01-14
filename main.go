@@ -48,15 +48,18 @@ func (app *App) Run(address string) {
 }
 
 func sendResponse(w http.ResponseWriter, statusCode int, payload interface{}) {
-    response, _ := json.Marshal(payload)
+    response, err := json.Marshal(payload)
+    if err != nil {
+        log.Printf("Error marshalling response: %v", err)
+        http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+        return
+    }
     w.Header().Set("Content-type", "application/json")
     w.WriteHeader(statusCode)
     w.Write(response)
-}
 
-func sendError(w http.ResponseWriter, statusCode int, err string) {
-    errorMessage := map[string]string{"error": err}
-    sendResponse(w, statusCode, errorMessage)
+func sendError(w http.ResponseWriter, statusCode int, errMessage string) {
+    sendResponse(w, statusCode, map[string]string{"error": errMessage})
 }
 
 func (app *App) getTasks(writer http.ResponseWriter, request *http.Request) {
