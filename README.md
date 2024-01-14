@@ -3,7 +3,7 @@
 ## Project Overview
 This Go project provides a RESTful API for task management. Utilizing the Gorilla Mux package for routing, it allows users to create, read, update, and delete tasks. Each task is structured with attributes like ID, Name, Description, and Due Date.
 
-![Go-Image](./Images/Go-API-Server-Image.jpg)
+![Go-Image](./Images/Go-API-to-K8s-CRUD.jpg)
 
 ## Features
 - **CRUD Operations**: Create, read, update, and delete tasks.

@@ -6,6 +6,8 @@ import (
     "log"
     "net/http"
     "strconv"
+    "k8s.io/client-go/kubernetes"
+    "k8s.io/client-go/rest"
 )
 
 type Task struct {
@@ -20,6 +22,7 @@ var currentID int
 
 type App struct {
     Router *mux.Router
+    K8sClient *kubernetes.Clientset
 }
 
 func (app *App) handleRoutes() {
@@ -30,11 +33,23 @@ func (app *App) handleRoutes() {
     app.Router.HandleFunc("/task/{id}", app.deleteTask).Methods("DELETE")
 }
 
+func (app *App) InitialiseK8sClient() {
+    config, err := rest.InClusterConfig()
+    if err != nil {
+        log.Fatalf("Error getting Kubernetes config: %s", err)
+    }
+    clientset, err := kubernetes.NewForConfig(config)
+    if err != nil {
+        log.Fatalf("Error creating Kubernetes clientset: %s", err)
+    }
+    app.K8sClient = clientset
+}
 func (app *App) Initialise(initialTasks []Task, id int) {
     tasks = initialTasks
     currentID = id
     app.Router = mux.NewRouter().StrictSlash(true)
     app.handleRoutes()
+    app.InitialiseK8sClient()  // Initialize Kubernetes client
 }
 func main() {
     app := App{}
