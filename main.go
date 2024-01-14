@@ -8,6 +8,10 @@ import (
     "strconv"
     "k8s.io/client-go/kubernetes"
     "k8s.io/client-go/rest"
+    "Advanced-Golang/Golang-API-Development/aws"
+    "Advanced-Golang/Golang-API-Development/azure"
+    "Advanced-Golang/Golang-API-Development/gcp"
+    "Advanced-Golang/Golang-API-Development/onprem"
 )
 
 type Task struct {
@@ -52,6 +56,16 @@ func (app *App) Initialise(initialTasks []Task, id int) {
     app.InitialiseK8sClient()  // Initialize Kubernetes client
 }
 func main() {
+    router := mux.NewRouter()
+
+    // Define API routes here
+    router.HandleFunc("/api/aws/resource", aws.HandleAWSRequest).Methods("GET", "POST", "PUT", "DELETE")
+    router.HandleFunc("/api/azure/resource", azure.HandleAzureRequest).Methods("GET", "POST", "PUT", "DELETE")
+    router.HandleFunc("/api/gcp/resource", gcp.HandleGCPRequest).Methods("GET", "POST", "PUT", "DELETE")
+    router.HandleFunc("/api/onprem/resource", onprem.HandleOnPremRequest).Methods("GET", "POST", "PUT", "DELETE")
+
+    log.Fatal(http.ListenAndServe(":8080", router))
+    
     app := App{}
     tasks, id := CreateInitialTasks()
     app.Initialise(tasks, id)
